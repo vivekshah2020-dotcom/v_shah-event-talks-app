@@ -260,6 +260,12 @@ body {
     box-shadow: 0 0 12px var(--primary-glow);
 }
 
+.action-buttons-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
 /* Buttons */
 .btn {
     display: inline-flex;
@@ -287,11 +293,25 @@ body {
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--card-border);
     color: var(--text-main);
 }
 
-.btn-secondary:hover { background: rgba(255, 255, 255, 0.18); }
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.16);
+    transform: translateY(-2px);
+}
+
+.btn-csv {
+    color: var(--cyan-accent);
+    border-color: rgba(0, 229, 255, 0.3);
+}
+
+.btn-csv:hover {
+    background: rgba(0, 229, 255, 0.12);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+}
 
 .btn-ghost {
     background: transparent;
@@ -466,6 +486,8 @@ body {
     align-items: center;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     padding-top: 1rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .card-link {
@@ -482,7 +504,7 @@ body {
 
 .card-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
 .action-btn {
@@ -503,6 +525,11 @@ body {
 .action-btn:hover {
     background: rgba(255, 255, 255, 0.12);
     color: var(--text-main);
+}
+
+.action-btn.copy-btn:hover {
+    color: var(--cyan-accent);
+    border-color: rgba(0, 229, 255, 0.3);
 }
 
 .action-btn.share-tweet-trigger {
@@ -697,6 +724,7 @@ body {
 @media (max-width: 768px) {
     .hero-header h1 { font-size: 2rem; }
     .filter-actions { flex-direction: column; align-items: stretch; }
-    .btn-refresh { width: 100%; }
+    .action-buttons-group { width: 100%; }
+    .btn-refresh, .btn-csv { flex: 1; }
     .notes-grid { grid-template-columns: 1fr; }
 }

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // DOM Elements
     const refreshBtn = document.getElementById('refresh-btn');
+    const exportCsvBtn = document.getElementById('export-csv-btn');
     const searchInput = document.getElementById('search-input');
     const clearSearchBtn = document.getElementById('clear-search');
     const categoryFilters = document.getElementById('category-filters');
@@ -59,11 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Render filtered and searched notes
-    function renderNotes() {
-        notesGrid.innerHTML = '';
-
-        const filtered = allNotes.filter(note => {
+    // Filter notes based on active category and search query
+    function getFilteredNotes() {
+        return allNotes.filter(note => {
             const matchesCategory = activeCategory === 'all' || 
                 (note.categories && note.categories.includes(activeCategory));
 
@@ -73,6 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return matchesCategory && matchesSearch;
         });
+    }
+
+    // Render filtered and searched notes
+    function renderNotes() {
+        notesGrid.innerHTML = '';
+        const filtered = getFilteredNotes();
 
         if (filtered.length === 0) {
             notesGrid.classList.add('hidden');
@@ -116,18 +121,85 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span>View Docs</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </a>
                 <div class="card-actions">
-                    <button class="action-btn share-tweet-trigger" data-id="${note.id}">
-                        <i class="fa-brands fa-x-twitter"></i> <span>Tweet Update</span>
+                    <button class="action-btn copy-btn" title="Copy release update text to clipboard">
+                        <i class="fa-regular fa-copy"></i> <span>Copy</span>
+                    </button>
+                    <button class="action-btn share-tweet-trigger" data-id="${note.id}" title="Tweet this update">
+                        <i class="fa-brands fa-x-twitter"></i> <span>Tweet</span>
                     </button>
                 </div>
             </div>
         `;
 
-        // Attach Tweet button listener
+        // Attach Button listeners
+        const copyBtn = card.querySelector('.copy-btn');
+        copyBtn.addEventListener('click', () => copyNoteToClipboard(note, copyBtn));
+
         const tweetBtn = card.querySelector('.share-tweet-trigger');
         tweetBtn.addEventListener('click', () => openTweetModal(note));
 
         return card;
+    }
+
+    // Copy Note to Clipboard Feature
+    async function copyNoteToClipboard(note, buttonEl) {
+        const textToCopy = `Google BigQuery Update: ${note.title}\nDate: ${note.published}\n\n${note.plain_text}\n\nRead more: ${note.link}`;
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            showToast('Copied update to clipboard!');
+
+            // Visual feedback on button
+            const originalHtml = buttonEl.innerHTML;
+            buttonEl.innerHTML = `<i class="fa-solid fa-check" style="color: #34a853;"></i> <span>Copied!</span>`;
+            setTimeout(() => {
+                buttonEl.innerHTML = originalHtml;
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            showToast('Failed to copy to clipboard.');
+        }
+    }
+
+    // Export to CSV Feature
+    function exportToCSV() {
+        const notesToExport = getFilteredNotes();
+
+        if (notesToExport.length === 0) {
+            showToast('No notes available to export.');
+            return;
+        }
+
+        // Define CSV headers
+        const headers = ['Title', 'Published Date', 'Categories', 'Documentation Link', 'Summary'];
+        
+        // Convert notes to CSV rows
+        const rows = notesToExport.map(note => [
+            escapeCsvCell(note.title),
+            escapeCsvCell(note.published),
+            escapeCsvCell(note.categories ? note.categories.join(', ') : ''),
+            escapeCsvCell(note.link),
+            escapeCsvCell(note.plain_text)
+        ]);
+
+        const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+
+        // Trigger file download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `bigquery_release_notes_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showToast(`Exported ${notesToExport.length} release notes to CSV!`);
+    }
+
+    function escapeCsvCell(cellText) {
+        if (!cellText) return '""';
+        const str = String(cellText).replace(/"/g, '""');
+        return `"${str}"`;
     }
 
     // Modal Handling
@@ -224,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listeners
     refreshBtn.addEventListener('click', fetchReleaseNotes);
+    exportCsvBtn.addEventListener('click', exportToCSV);
     retryBtn.addEventListener('click', fetchReleaseNotes);
 
     searchInput.addEventListener('input', (e) => {

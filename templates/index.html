@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BigQuery Release Pulse | Live Updates & Sharing</title>
-    <meta name="description" content="Explore real-time Google BigQuery release notes and updates with instant Twitter sharing capabilities.">
+    <meta name="description" content="Explore real-time Google BigQuery release notes and updates with instant Twitter sharing and CSV export capabilities.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +31,7 @@
                 <span>Google Cloud BigQuery</span>
             </div>
             <h1>BigQuery <span class="gradient-text">Release Pulse</span></h1>
-            <p class="hero-subtitle">Real-time cloud data warehouse release notes, features, and instant social sharing.</p>
+            <p class="hero-subtitle">Real-time cloud data warehouse release notes, features, CSV export, and instant social sharing.</p>
 
             <div class="header-meta">
                 <div class="status-indicator">
@@ -61,10 +61,16 @@
                     <button class="filter-chip" data-category="Preview">Preview</button>
                 </div>
 
-                <button id="refresh-btn" class="btn btn-primary btn-refresh" title="Refresh BigQuery Release Notes">
-                    <i class="fa-solid fa-arrows-rotate spinner-icon"></i>
-                    <span>Refresh</span>
-                </button>
+                <div class="action-buttons-group">
+                    <button id="export-csv-btn" class="btn btn-secondary btn-csv" title="Export Release Notes to CSV">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span>Export CSV</span>
+                    </button>
+                    <button id="refresh-btn" class="btn btn-primary btn-refresh" title="Refresh BigQuery Release Notes">
+                        <i class="fa-solid fa-arrows-rotate spinner-icon"></i>
+                        <span>Refresh</span>
+                    </button>
+                </div>
             </div>
         </section>
 
