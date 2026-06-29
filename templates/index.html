@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Pulse | Live Updates & Sharing</title>
+    <meta name="description" content="Explore real-time Google BigQuery release notes and updates with instant Twitter sharing capabilities.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-background">
+        <div class="glow-sphere sphere-1"></div>
+        <div class="glow-sphere sphere-2"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="hero-header">
+            <div class="brand-badge">
+                <i class="fa-solid fa-database brand-icon"></i>
+                <span>Google Cloud BigQuery</span>
+            </div>
+            <h1>BigQuery <span class="gradient-text">Release Pulse</span></h1>
+            <p class="hero-subtitle">Real-time cloud data warehouse release notes, features, and instant social sharing.</p>
+
+            <div class="header-meta">
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span id="status-text">Live Feed Connected</span>
+                </div>
+                <div class="last-updated" id="last-updated">
+                    <i class="fa-regular fa-clock"></i> Checking for updates...
+                </div>
+            </div>
+        </header>
+
+        <!-- Controls & Filter Bar -->
+        <section class="controls-section">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-input" placeholder="Search release notes, features, SQL syntax..." autocomplete="off">
+                <button id="clear-search" class="clear-btn hidden"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="filter-actions">
+                <div class="category-filters" id="category-filters">
+                    <button class="filter-chip active" data-category="all">All Updates</button>
+                    <button class="filter-chip" data-category="Feature">Features</button>
+                    <button class="filter-chip" data-category="Changed">Changed</button>
+                    <button class="filter-chip" data-category="GA">GA</button>
+                    <button class="filter-chip" data-category="Preview">Preview</button>
+                </div>
+
+                <button id="refresh-btn" class="btn btn-primary btn-refresh" title="Refresh BigQuery Release Notes">
+                    <i class="fa-solid fa-arrows-rotate spinner-icon"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Release Notes Grid Container -->
+        <main class="content-section">
+            <div id="loading-state" class="loading-state">
+                <div class="pulse-loader">
+                    <div></div><div></div><div></div>
+                </div>
+                <p>Fetching latest release notes from Google Cloud...</p>
+            </div>
+
+            <div id="error-state" class="error-state hidden">
+                <i class="fa-solid fa-triangle-exclamation error-icon"></i>
+                <h3>Unable to load release notes</h3>
+                <p id="error-message">Check server logs or connection.</p>
+                <button class="btn btn-secondary" id="retry-btn"><i class="fa-solid fa-rotate-right"></i> Try Again</button>
+            </div>
+
+            <div id="notes-grid" class="notes-grid hidden">
+                <!-- Notes dynamically populated here -->
+            </div>
+
+            <div id="empty-state" class="empty-state hidden">
+                <i class="fa-solid fa-box-open empty-icon"></i>
+                <h3>No release notes found</h3>
+                <p>Try adjusting your search query or filter chip.</p>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Powered by BigQuery Release RSS Feed &bull; Built with Flask & Vanilla JS</p>
+        </footer>
+    </div>
+
+    <!-- Tweet / X Sharing Modal -->
+    <div id="tweet-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-brands fa-x-twitter x-logo"></i>
+                    <span>Compose Tweet</span>
+                </div>
+                <button id="close-modal-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="selected-note-preview">
+                    <span class="preview-label">Selected Update</span>
+                    <h4 id="modal-note-title">Release Note Title</h4>
+                    <p id="modal-note-date" class="preview-date"><i class="fa-regular fa-calendar"></i> Date</p>
+                </div>
+
+                <div class="tweet-editor">
+                    <label for="tweet-text">Customize your Tweet message:</label>
+                    <textarea id="tweet-text" rows="4" maxlength="280" placeholder="Write your thoughts..."></textarea>
+                    <div class="char-counter">
+                        <span id="char-count">0</span> / 280
+                    </div>
+                </div>
+
+                <div class="hashtags-selector">
+                    <span class="hashtags-label">Add Trending Hashtags:</span>
+                    <div class="hashtag-chips">
+                        <label class="tag-chip"><input type="checkbox" value="#BigQuery" checked> #BigQuery</label>
+                        <label class="tag-chip"><input type="checkbox" value="#GoogleCloud" checked> #GoogleCloud</label>
+                        <label class="tag-chip"><input type="checkbox" value="#DataEngineering" checked> #DataEngineering</label>
+                        <label class="tag-chip"><input type="checkbox" value="#SQL"> #SQL</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="cancel-tweet-btn" class="btn btn-ghost">Cancel</button>
+                <button id="share-tweet-btn" class="btn btn-tweet">
+                    <i class="fa-brands fa-x-twitter"></i> Post to X / Tweet
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">Notification message</span>
+    </div>
+
+    <!-- Application Script -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
